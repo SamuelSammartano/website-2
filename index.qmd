@@ -1,0 +1,122 @@
+---
+title: "Chart Life"
+format:
+  html:
+    fig-width: 12
+    fig-height: 6.5
+    fig-dpi: 160
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+```{r}
+library(tidyverse)
+library(tidyr)
+
+billboard_long <- billboard |>
+  pivot_longer(
+    cols = starts_with("wk"),
+    names_to = "week",
+    names_prefix = "wk",
+    values_to = "rank",
+    values_drop_na = TRUE
+  ) |>
+  mutate(week = as.integer(week))
+
+top_tracks <- billboard_long |>
+  group_by(artist, track) |>
+  summarise(
+    peak = min(rank),
+    weeks = n(),
+    .groups = "drop"
+  ) |>
+  arrange(peak, desc(weeks)) |>
+  slice_head(n = 10) |>
+  mutate(label = str_c(track, " / ", artist))
+
+plot_data <- billboard_long |>
+  semi_join(top_tracks, by = c("artist", "track")) |>
+  mutate(label = str_c(track, " / ", artist)) |>
+  left_join(top_tracks |> select(label, peak), by = "label") |>
+  mutate(label = fct_reorder(label, peak))
+
+song_count <- n_distinct(billboard$track)
+artist_count <- n_distinct(billboard$artist)
+week_count <- n_distinct(plot_data$week)
+
+rank_plot <- ggplot(plot_data, aes(x = week, y = rank, group = label, color = label)) +
+  geom_line(linewidth = 1.1, alpha = 0.92, na.rm = TRUE) +
+  geom_point(data = plot_data |> filter(rank == peak), size = 2.6, stroke = 0) +
+  scale_y_reverse(breaks = c(1, 10, 25, 50, 75, 100), limits = c(100, 1), expand = c(0.02, 0)) +
+  scale_x_continuous(breaks = seq(1, 76, by = 10), minor_breaks = NULL, expand = c(0.01, 0)) +
+  scale_color_manual(values = c("#e76f51", "#f4a261", "#e9c46a", "#8ab17d", "#2a9d8f", "#4d908e", "#577590", "#277da1", "#6d597a", "#b56576")) +
+  labs(
+    x = "Weeks after debut",
+    y = "Billboard rank",
+    color = NULL
+  ) +
+  guides(color = guide_legend(ncol = 1, byrow = TRUE)) +
+  theme_minimal(base_family = "DM Sans") +
+  theme(
+    plot.background = element_rect(fill = "#f7f4ee", color = NA),
+    panel.background = element_rect(fill = "#f7f4ee", color = NA),
+    panel.grid.major = element_line(color = "#ded8cc", linewidth = 0.35),
+    panel.grid.minor = element_blank(),
+    axis.title = element_text(color = "#625d56", size = 10),
+    axis.text = element_text(color = "#777069", size = 9),
+    legend.text = element_text(color = "#49443f", size = 9),
+    legend.key.height = unit(0.78, "lines"),
+    legend.position = "right",
+    plot.margin = margin(8, 10, 4, 4)
+  )
+```
+
+::: {.shell}
+<header class="masthead">
+<div class="eyebrow"><span class="eyebrow-mark"></span> Tidyr data story · 2000</div>
+<div class="masthead-meta">A field guide to staying power</div>
+</header>
+
+<main>
+::: {.hero}
+<div class="hero-copy">
+<p class="kicker">Every week tells a story</p>
+<h1>Chart <em>life</em></h1>
+<p class="lede">A closer look at how the era's biggest songs climbed, held on, and slowly drifted out of the Billboard Hot 100.</p>
+</div>
+<div class="hero-note">
+<span class="note-number">01</span>
+<p>Rank is read top-down.<br />The higher the line, the bigger the moment.</p>
+</div>
+:::
+
+::: {.stats aria-label="Dataset summary"}
+<div class="stat"><strong>`r song_count`</strong><span>songs tracked</span></div>
+<div class="stat"><strong>`r artist_count`</strong><span>distinct artists</span></div>
+<div class="stat"><strong>76</strong><span>weeks observed</span></div>
+<div class="stat stat-callout"><strong>Top 10</strong><span>songs by peak rank</span></div>
+:::
+
+::: {.chart-section}
+<div class="section-heading">
+<div>
+<p class="kicker">The long climb</p>
+<h2>Ten songs that made<br /><em>the room listen</em></h2>
+</div>
+<p class="section-caption">Peak rank is marked on each trajectory. A line ending early means the song left the chart; a long, low line means it lingered.</p>
+</div>
+<div class="chart-wrap">
+```{r}
+rank_plot
+```
+</div>
+:::
+
+<footer>
+<span>Source: <code>tidyr::billboard</code></span>
+<span>Reshaped from wide to long with <code>pivot_longer()</code></span>
+</footer>
+</main>
+:::
