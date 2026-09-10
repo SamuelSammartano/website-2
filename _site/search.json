@@ -1,7 +1,7 @@
 [
   {
-    "objectID": "index.html",
-    "href": "index.html",
+    "objectID": "analysis.html",
+    "href": "analysis.html",
     "title": "Chart Life",
     "section": "",
     "text": "Chart Life\n\n\n\nEvery week tells a story\n\n\nChart life\n\n\nA closer look at how the era’s biggest songs climbed, held on, and slowly drifted out of the Billboard Hot 100.\n\n\n\n01\n\nRank is read top-down.The higher the line, the bigger the moment.\n\n\n\n\n\n316songs tracked\n\n\n228distinct artists\n\n\n76weeks observed\n\n\nTop 10songs by peak rank\n\n\n\n\n\n\nThe long climb\n\n\nTen songs that madethe room listen\n\n\n\nPeak rank is marked on each trajectory. A line ending early means the song left the chart; a long, low line means it lingered.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nSource: tidyr::billboard Reshaped from wide to long with pivot_longer()"
