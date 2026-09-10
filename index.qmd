@@ -44,6 +44,7 @@ plot_data <- billboard_long |>
 
 song_count <- n_distinct(billboard$track)
 artist_count <- n_distinct(billboard$artist)
+week_count <- n_distinct(plot_data$week)
 
 rank_plot <- ggplot(plot_data, aes(x = week, y = rank, group = label, color = label)) +
   geom_line(linewidth = 1.1, alpha = 0.92, na.rm = TRUE) +
@@ -51,7 +52,11 @@ rank_plot <- ggplot(plot_data, aes(x = week, y = rank, group = label, color = la
   scale_y_reverse(breaks = c(1, 10, 25, 50, 75, 100), limits = c(100, 1), expand = c(0.02, 0)) +
   scale_x_continuous(breaks = seq(1, 76, by = 10), minor_breaks = NULL, expand = c(0.01, 0)) +
   scale_color_manual(values = c("#e76f51", "#f4a261", "#e9c46a", "#8ab17d", "#2a9d8f", "#4d908e", "#577590", "#277da1", "#6d597a", "#b56576")) +
-  labs(x = "Weeks after debut", y = "Billboard rank", color = NULL) +
+  labs(
+    x = "Weeks after debut",
+    y = "Billboard rank",
+    color = NULL
+  ) +
   guides(color = guide_legend(ncol = 1, byrow = TRUE)) +
   theme_minimal(base_family = "DM Sans") +
   theme(
